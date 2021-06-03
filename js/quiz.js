@@ -1,8 +1,11 @@
 const startButton = document.getElementById('start-btn');
 const nextButton = document.getElementById('next-btn');
 const questionContainerElement = document.getElementById('question-container');
-const questionElement = document.getElementById('question');
 const answerButtonsElement = document.getElementById('answer-buttons');
+
+let value = 0;
+let count = 0;
+
 
 let shuffledQuestions;
 let currentQuestionIndex;
@@ -14,6 +17,7 @@ nextButton.addEventListener('click', () => {
 })
 
 function startGame() {
+    count = 0;
     startButton.classList.add('hide')
     shuffledQuestions = questions.sort(() => Math.random() - .5)
     currentQuestionIndex = 0;
@@ -27,57 +31,99 @@ function setNextQuestion() {
 }
 
 function showQuestion(question) {
-    questionElement.innerText = question.question
     question.answers.forEach(answer => {
-        console.log("answer", answer.text)
 
-        addInput();
+        addQuestion(question);
+
+
+        const inputField = document.getElementById('input-field');
+        const answerInput = document.getElementById('answer-buttons').lastChild;
+
+
 
         const submitButton = document.querySelector('.submit-button');
-        submitButton.addEventListener('click', () => {
-            const val = document.getElementById('input-field').value;
-            console.log("value", val)
-            console.log("answer", answer.text)
 
-            if (val === answer.text) {
-                document.body.classList.add('correct')
+        submitButton.addEventListener('click', () => {
+
+            if (value !== answer.text) {
+                document.body.classList.add('wrong');
+                document.body.classList.remove("correct");
             }
             else {
-                document.body.classList.add('wrong')
+                document.body.classList.add('correct')
+                document.body.classList.remove("wrong");
             }
         });
 
+        answerInput.addEventListener('input', inputHandler);
 
-        document.getElementById('input-field').addEventListener('input', selectAnswer)
+        answerInput.addEventListener("keyup", function(e) {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                submitButton.click(selectAnswer);
+            }
+        });
+
+        answerInput.addEventListener('input', selectAnswer);
+
 })
+
+}
+
+function addQuestion (question) {
+    const questionField = document.createElement('div');
+    questionField.classList.add('question');
+    questionField.id = "question";
+    questionField.innerHTML = question.question;
+
+    document.body.appendChild(questionField);
+    answerButtonsElement.appendChild(questionField)
+
+    addInput()
 }
 
 function addInput() {
     const answerField = document.createElement('input')
     answerField.classList.add('input-field');
     answerField.type = "text";
-    answerField.id = 'input-field';
-    answerField.value = "1";
+    answerField.id = "input-field";
 
     document.body.appendChild(answerField);
-    answerButtonsElement.appendChild(answerField)
+    answerButtonsElement.appendChild(answerField);
 }
+
+const inputHandler = function(e) {
+    value = e.target.value;
+};
+
 
 function resetState() {
     clearStatusClass(document.body)
-    nextButton.classList.add('hide')
-    while (answerButtonsElement.firstChild) {
-        answerButtonsElement.removeChild(answerButtonsElement.firstChild)
-    }
+    nextButton.classList.add('hide');
+
+     while (answerButtonsElement.firstChild) {
+         answerButtonsElement.removeChild(answerButtonsElement.firstChild)
+     }
 }
 
-function selectAnswer() {
+function selectAnswer(e) {
+    const selectedButton = e.target;
+    console.log(selectedButton.value)
+
     if (shuffledQuestions.length > currentQuestionIndex + 1) {
         nextButton.classList.remove('hide')
     } else {
         startButton.innerText = 'Restart'
         startButton.classList.remove('hide')
     }
+
+    // if (selectedButton.value === questions[0].answers[0].text) {
+    //     count++;
+    // } count--;
+    //
+    // const score = document.querySelector('.score');
+    // score.innerHTML = count.toString();
+
 }
 
 function setStatusClass(element, correct) {
@@ -97,21 +143,21 @@ function clearStatusClass(element) {
 
 const questions = [
     {
-        question: 'What is 2 + 2?',
+        question: 'Typ a',
         answers: [
-            { text: '4', correct: true },
+            { text: 'a', correct: true },
         ]
     },
     {
-        question: 'Who is the best YouTuber?',
+        question: 'Typ b',
         answers: [
-            { text: 'Web Dev Simplified', correct: true },
+            { text: 'b', correct: true },
         ]
     },
     {
-        question: 'Is web development fun?',
+        question: 'Typ c',
         answers: [
-            { text: 'YES!!!', correct: true },
+            { text: 'c', correct: true },
         ]
     }
 ]
