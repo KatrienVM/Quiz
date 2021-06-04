@@ -38,6 +38,13 @@ body.wrong {
     box-shadow: 0 0 10px 2px;
 }
 
+.draft {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+}
+
 .btn-grid {
     display: grid;
     grid-template-columns: repeat(2, auto);
