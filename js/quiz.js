@@ -51,9 +51,9 @@ function showQuestion() {
 
         answerInput.addEventListener('input', inputHandler);
         answerInput.addEventListener("keyup", function(e) {
-            if (e.keyCode === 13) {
+            if (e.keyCode === 13 || e.keyCode === 9) {
                 e.preventDefault();
-                submitButton.click(selectAnswer);
+                //submitButton.click(selectAnswer);
                 writeDown()
             }
         });
