@@ -10,6 +10,8 @@ let value = 0;
 let count = 0;
 let shuffledQuestions;
 let currentQuestionIndex;
+let inputLength = 0;
+let questionId = 0;
 
 startButton.addEventListener('click', startGame);
 nextButton.addEventListener('click', () => {
@@ -34,65 +36,62 @@ function removeAllChildNodes(parent) {
 }
 
 function setNextQuestion() {
+    //TODO: Score logica werkt nog niet
+
     resetState();
     showQuestion(shuffledQuestions[currentQuestionIndex])
-}
+    const nodes = document.querySelectorAll('input');
 
-function showQuestion() {
-    questions.forEach(q => {
+    for (let i = 0; i < nodes.length; i++) {
+        nodes[i].addEventListener('focus', () => {
+            nodes[i].classList.add('active');
+            nodes[i].style.background = 'green';
+        })
 
-        addQuestion(q);
+        nodes[i].addEventListener('blur', () => {
+            nodes[i].classList.remove("active");
+            nodes[i].style.background = 'transparent';
+        })
 
+        nodes[i].addEventListener('input', inputHandler);
+        nodes[i].addEventListener('input', selectAnswer);
 
-        const inputField = document.getElementById('input-field');
-        const answerInput = document.getElementById('answer-buttons').lastChild;
+        nodes[i].addEventListener('input', () => {
 
-        //let sameFunctions = document.querySelectorAll('.submit-button,.next-btn');
+            console.log("correct answer: ", questions[i].answers[0].text)
 
-        answerInput.addEventListener('input', inputHandler);
-        answerInput.addEventListener("keyup", function(e) {
+            if (value !== questions[i].answers[0].text) {
+                document.body.classList.add('wrong');
+                document.body.classList.remove("correct");
+            } else {
+                count++;
+                document.body.classList.add('correct')
+                document.body.classList.remove("wrong");
+            }
+            score.innerHTML = "score: " + count;
+        })
+
+        nodes[i].addEventListener("keyup", function(e) {
             if (e.keyCode === 13 || e.keyCode === 9) {
                 e.preventDefault();
                 //submitButton.click(selectAnswer);
                 writeDown()
             }
         });
-        answerInput.addEventListener('input', selectAnswer);
-
-        answerInput.addEventListener('blur', () => {
-
-                if (value !== q.answers[0].text) {
-                    document.body.classList.add('wrong');
-                    document.body.classList.remove("correct");
-                }
-                else {
-                    count++;
-                    document.body.classList.add('correct')
-                    document.body.classList.remove("wrong");
-                }
-
-            score.innerHTML = "score: " + count;
-            });
-        });
+    }
     const score = document.querySelector('.score');
     submitButton.addEventListener('click', () => {
         alert("Score: " + count)
     })
-}
+    }
 
-// function showQuestion() {
-//
-//     for(let i = 0; i < questions.length; i++){
-//         let response = window.prompt(questions[i].question);
-//         console.log(questions[i].answers[0].text)
-//         if (response === questions[i].answers[0].text) {
-//             alert("true");
-//         }
-//         else {
-//             alert("wrong");
-//         }
-//     }
-// }
+function showQuestion() {
+    questions.forEach(q => {
+
+        addQuestion(q);
+        //let sameFunctions = document.querySelectorAll('.submit-button,.next-btn');
+        });
+}
 
 function writeDown() {
         const kladblokje = document.createElement('div');
@@ -104,32 +103,34 @@ function writeDown() {
 }
 
 function addQuestion (question) {
-    const questionField = document.createElement('div');
-    questionField.classList.add('question');
-    questionField.id = "question";
-    questionField.innerHTML = question.question;
+        const questionField = document.createElement('div');
+        questionField.classList.add('question');
+        questionField.id = "question" + (questionId++);
+        questionField.innerHTML = question.question;
+        document.body.appendChild(questionField);
+        answerButtonsElement.appendChild(questionField)
 
-    document.body.appendChild(questionField);
-    answerButtonsElement.appendChild(questionField)
-
-    addInput()
+        addInput()
 }
 
 function addInput() {
     const answerField = document.createElement('input')
     answerField.classList.add('input-field');
     answerField.type = "text";
-    answerField.id = "input-field";
+    answerField.id = "input-field" + (inputLength++);
 
     document.body.appendChild(answerField);
     answerButtonsElement.appendChild(answerField);
+
+    if(answerField.id === "input-field0") {
+        answerField.classList.add('active');
+    }
 }
 
 const inputHandler = function(e) {
     value = e.target.value;
-    console.log("value", value);
-};
-
+    console.log("value: ", value);
+}
 
 function resetState() {
     clearStatusClass(document.body)
@@ -141,10 +142,7 @@ function resetState() {
      }
 }
 
-function selectAnswer(e) {
-    const selectedButton = e.target;
-    console.log(selectedButton.value)
-
+function selectAnswer() {
     if (shuffledQuestions.length < currentQuestionIndex + 1) {
         nextButton.classList.remove('hide')
     } else {
